@@ -4,14 +4,39 @@ import Header from './components/Header';
 import FoodInput from './components/FoodInput';
 import NutritionDisplay from './components/NutritionDisplay';
 import DailySummary from './components/DailySummary';
+import { saveMeal, getUserMeals } from './services/mealService';
 
 function App() {
   const [meals, setMeals] = useState([]);
   const [currentMeal, setCurrentMeal] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Add a new meal to the meals list
-  const addMeal = (meal) => {
-    setMeals([...meals, meal]);
+  // Load user's meals for today
+  useEffect(() => {
+    const loadMeals = async () => {
+      try {
+        setLoading(true);
+        const userMeals = await getUserMeals();
+        setMeals(userMeals);
+      } catch (error) {
+        console.error('Error loading meals:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadMeals();
+  }, []);
+
+  // Add a new meal
+  const addMeal = async (meal) => {
+    try {
+      const mealId = await saveMeal(meal);
+      const mealWithId = { ...meal, id: mealId };
+      setMeals([mealWithId, ...meals]);
+    } catch (error) {
+      console.error('Error adding meal:', error);
+    }
   };
 
   return (
@@ -20,7 +45,11 @@ function App() {
       <main className="container mx-auto p-4">
         <FoodInput setCurrentMeal={setCurrentMeal} addMeal={addMeal} />
         {currentMeal && <NutritionDisplay meal={currentMeal} />}
-        <DailySummary meals={meals} />
+        {loading ? (
+          <p>Loading your meal history...</p>
+        ) : (
+          <DailySummary meals={meals} />
+        )}
       </main>
     </div>
   );
