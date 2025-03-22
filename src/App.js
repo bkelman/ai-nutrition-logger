@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import Header from './components/Header';
+import DateSelector from './components/DateSelector';
 import FoodInput from './components/FoodInput';
 import NutritionDisplay from './components/NutritionDisplay';
 import DailySummary from './components/DailySummary';
@@ -13,15 +14,16 @@ function AppContent() {
   const [meals, setMeals] = useState([]);
   const [currentMeal, setCurrentMeal] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
-  // Load user's meals for today
+  // Load user's meals for the selected date
   useEffect(() => {
     if (!currentUser) return;
     
     const loadMeals = async () => {
       try {
         setLoading(true);
-        const userMeals = await getUserMeals(currentUser.uid);
+        const userMeals = await getUserMeals(currentUser.uid, selectedDate);
         setMeals(userMeals);
       } catch (error) {
         console.error('Error loading meals:', error);
@@ -31,7 +33,7 @@ function AppContent() {
     };
     
     loadMeals();
-  }, [currentUser]);
+  }, [currentUser, selectedDate]);
 
   // Add a new meal
   const addMeal = async (meal) => {
@@ -40,10 +42,23 @@ function AppContent() {
     try {
       const mealId = await saveMeal(meal, currentUser.uid);
       const mealWithId = { ...meal, id: mealId };
-      setMeals([mealWithId, ...meals]);
+      
+      // Only update the meals list if the new meal is for today
+      const today = new Date();
+      if (isToday(selectedDate)) {
+        setMeals([mealWithId, ...meals]);
+      }
     } catch (error) {
       console.error('Error adding meal:', error);
     }
+  };
+
+  // Helper function to check if a date is today
+  const isToday = (date) => {
+    const today = new Date();
+    return date.getDate() === today.getDate() &&
+      date.getMonth() === today.getMonth() &&
+      date.getFullYear() === today.getFullYear();
   };
 
   // If not authenticated, show auth container
@@ -55,12 +70,31 @@ function AppContent() {
     <div className="App">
       <Header />
       <main className="container mx-auto p-4">
-        <FoodInput setCurrentMeal={setCurrentMeal} addMeal={addMeal} />
-        {currentMeal && <NutritionDisplay meal={currentMeal} />}
+        <DateSelector 
+          selectedDate={selectedDate} 
+          setSelectedDate={setSelectedDate} 
+        />
+        
+        {isToday(selectedDate) ? (
+          <FoodInput setCurrentMeal={setCurrentMeal} addMeal={addMeal} />
+        ) : (
+          <div className="mb-8 p-4 bg-gray-100 rounded-lg text-center">
+            <p>Viewing meal history for {selectedDate.toDateString()}</p>
+            <button 
+              onClick={() => setSelectedDate(new Date())} 
+              className="mt-2 px-4 py-2 bg-blue-600 text-white rounded"
+            >
+              Go to Today to Log New Meals
+            </button>
+          </div>
+        )}
+        
+        {currentMeal && isToday(selectedDate) && <NutritionDisplay meal={currentMeal} />}
+        
         {loading ? (
           <p className="text-center py-4">Loading your meal history...</p>
         ) : (
-          <DailySummary meals={meals} />
+          <DailySummary meals={meals} date={selectedDate} />
         )}
       </main>
     </div>

@@ -19,26 +19,40 @@ export const saveMeal = async (mealData, userId) => {
   }
 };
 
-// Get all meals for a user, ordered by timestamp
-export const getUserMeals = async (userId) => {
-  if (!userId) return [];
-  
-  try {
-    const mealsRef = collection(db, 'meals');
-    const q = query(
-      mealsRef,
-      where('userId', '==', userId),
-      orderBy('createdAt', 'desc')
-    );
+// Get meals for a user on a specific date
+export const getUserMeals = async (userId, date = new Date()) => {
+    if (!userId) return [];
     
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      timestamp: doc.data().timestamp || doc.data().createdAt?.toDate().toISOString() || new Date().toISOString()
-    }));
-  } catch (error) {
-    console.error('Error getting user meals:', error);
-    return [];
-  }
-};
+    try {
+      // Create start and end timestamps for the selected date
+      const startOfDay = new Date(date);
+      startOfDay.setHours(0, 0, 0, 0);
+      
+      const endOfDay = new Date(date);
+      endOfDay.setHours(23, 59, 59, 999);
+      
+      const startTimestamp = Timestamp.fromDate(startOfDay);
+      const endTimestamp = Timestamp.fromDate(endOfDay);
+      
+      console.log(`Fetching meals for ${startOfDay.toDateString()}`);
+      
+      const mealsRef = collection(db, 'meals');
+      const q = query(
+        mealsRef,
+        where('userId', '==', userId),
+        where('createdAt', '>=', startTimestamp),
+        where('createdAt', '<=', endTimestamp),
+        orderBy('createdAt', 'desc')
+      );
+      
+      const querySnapshot = await getDocs(q);
+      return querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        timestamp: doc.data().timestamp || doc.data().createdAt?.toDate().toISOString() || new Date().toISOString()
+      }));
+    } catch (error) {
+      console.error('Error getting user meals:', error);
+      return [];
+    }
+  };
