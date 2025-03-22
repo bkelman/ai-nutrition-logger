@@ -2,7 +2,7 @@ import { db } from '../firebase';
 import { collection, addDoc, query, where, getDocs, orderBy, Timestamp } from 'firebase/firestore';
 
 // Save a new meal to Firestore
-export const saveMeal = async (mealData, userId = 'anonymous') => {
+export const saveMeal = async (mealData, userId) => {
   try {
     const mealsRef = collection(db, 'meals');
     const mealWithMetadata = {
@@ -20,28 +20,25 @@ export const saveMeal = async (mealData, userId = 'anonymous') => {
 };
 
 // Get all meals for a user, ordered by timestamp
-export const getUserMeals = async (userId = 'anonymous', date = new Date()) => {
+export const getUserMeals = async (userId) => {
+  if (!userId) return [];
+  
   try {
-    // Create start and end dates for the query (start of day to end of day)
-    const startOfDay = new Date(date.setHours(0, 0, 0, 0));
-    const endOfDay = new Date(date.setHours(23, 59, 59, 999));
-    
     const mealsRef = collection(db, 'meals');
     const q = query(
       mealsRef,
       where('userId', '==', userId),
-      where('createdAt', '>=', Timestamp.fromDate(startOfDay)),
-      where('createdAt', '<=', Timestamp.fromDate(endOfDay)),
       orderBy('createdAt', 'desc')
     );
     
     const querySnapshot = await getDocs(q);
     return querySnapshot.docs.map(doc => ({
       id: doc.id,
-      ...doc.data()
+      ...doc.data(),
+      timestamp: doc.data().timestamp || doc.data().createdAt?.toDate().toISOString() || new Date().toISOString()
     }));
   } catch (error) {
     console.error('Error getting user meals:', error);
-    throw error;
+    return [];
   }
 };
