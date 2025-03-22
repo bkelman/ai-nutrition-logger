@@ -36,24 +36,24 @@ function DailySummary({ meals, date }) {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-4 gap-4 mb-6">
-            <div className="bg-blue-100 p-4 rounded text-center">
-              <h3 className="font-medium text-blue-800">Calories</h3>
-              <p className="text-2xl font-bold">{Math.round(dailyTotals.calories)}</p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mb-6">
+             <div className="bg-blue-100 p-3 sm:p-4 rounded text-center">
+                 <h3 className="font-medium text-blue-800 text-sm sm:text-base">Calories</h3>
+                 <p className="text-xl sm:text-2xl font-bold">{Math.round(dailyTotals.calories)}</p>
             </div>
-            <div className="bg-red-100 p-4 rounded text-center">
-              <h3 className="font-medium text-red-800">Protein</h3>
-              <p className="text-2xl font-bold">{Math.round(dailyTotals.protein)}g</p>
+            <div className="bg-red-100 p-3 sm:p-4 rounded text-center">
+                 <h3 className="font-medium text-red-800 text-sm sm:text-base">Protein</h3>
+                 <p className="text-xl sm:text-2xl font-bold">{Math.round(dailyTotals.protein)}g</p>
             </div>
-            <div className="bg-yellow-100 p-4 rounded text-center">
-              <h3 className="font-medium text-yellow-800">Carbs</h3>
-              <p className="text-2xl font-bold">{Math.round(dailyTotals.carbs)}g</p>
+             <div className="bg-yellow-100 p-3 sm:p-4 rounded text-center">
+               <h3 className="font-medium text-yellow-800 text-sm sm:text-base">Carbs</h3>
+             <p className="text-xl sm:text-2xl font-bold">{Math.round(dailyTotals.carbs)}g</p>
             </div>
-            <div className="bg-green-100 p-4 rounded text-center">
-              <h3 className="font-medium text-green-800">Fat</h3>
-              <p className="text-2xl font-bold">{Math.round(dailyTotals.fat)}g</p>
+             <div className="bg-green-100 p-3 sm:p-4 rounded text-center">
+              <h3 className="font-medium text-green-800 text-sm sm:text-base">Fat</h3>
+             <p className="text-xl sm:text-2xl font-bold">{Math.round(dailyTotals.fat)}g</p>
             </div>
-          </div>
+        </div>
           
           <h3 className="font-medium mb-2">Meals</h3>
           <div className="space-y-2">

@@ -66,39 +66,40 @@ function AppContent() {
     return <AuthContainer />;
   }
 
-  return (
-    <div className="App">
-      <Header />
-      <main className="container mx-auto p-4">
-        <DateSelector 
-          selectedDate={selectedDate} 
-          setSelectedDate={setSelectedDate} 
-        />
-        
-        {isToday(selectedDate) ? (
-          <FoodInput setCurrentMeal={setCurrentMeal} addMeal={addMeal} />
-        ) : (
-          <div className="mb-8 p-4 bg-gray-100 rounded-lg text-center">
-            <p>Viewing meal history for {selectedDate.toDateString()}</p>
-            <button 
-              onClick={() => setSelectedDate(new Date())} 
-              className="mt-2 px-4 py-2 bg-blue-600 text-white rounded"
-            >
-              Go to Today to Log New Meals
-            </button>
-          </div>
-        )}
-        
-        {currentMeal && isToday(selectedDate) && <NutritionDisplay meal={currentMeal} />}
-        
-        {loading ? (
-          <p className="text-center py-4">Loading your meal history...</p>
-        ) : (
-          <DailySummary meals={meals} date={selectedDate} />
-        )}
-      </main>
-    </div>
-  );
+  // In your return statement in AppContent
+return (
+  <div className="App">
+    <Header />
+    <main className="container mx-auto px-4 sm:px-6 max-w-4xl">
+      <DateSelector 
+        selectedDate={selectedDate} 
+        setSelectedDate={setSelectedDate} 
+      />
+      
+      {isToday(selectedDate) ? (
+        <FoodInput setCurrentMeal={setCurrentMeal} addMeal={addMeal} />
+      ) : (
+        <div className="mb-8 p-4 bg-gray-100 rounded-lg text-center">
+          <p>Viewing meal history for {selectedDate.toDateString()}</p>
+          <button 
+            onClick={() => setSelectedDate(new Date())} 
+            className="mt-2 px-4 py-2 bg-blue-600 text-white rounded"
+          >
+            Go to Today to Log New Meals
+          </button>
+        </div>
+      )}
+      
+      {currentMeal && isToday(selectedDate) && <NutritionDisplay meal={currentMeal} />}
+      
+      {loading ? (
+        <p className="text-center py-4">Loading your meal history...</p>
+      ) : (
+        <DailySummary meals={meals} date={selectedDate} />
+      )}
+    </main>
+  </div>
+);
 }
 
 function App() {

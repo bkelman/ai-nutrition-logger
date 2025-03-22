@@ -33,26 +33,26 @@ function DateSelector({ selectedDate, setSelectedDate }) {
     }
   };
   
-  return (
-    <div className="flex items-center justify-between mb-6 p-3 bg-gray-100 rounded-lg">
+return (
+    <div className="flex flex-col sm:flex-row items-center justify-between mb-6 p-3 bg-gray-100 rounded-lg space-y-3 sm:space-y-0">
       <button
         onClick={goToPreviousDay}
-        className="px-3 py-1 bg-white border rounded shadow-sm hover:bg-gray-50"
+        className="w-full sm:w-auto px-3 py-1 bg-white border rounded shadow-sm hover:bg-gray-50"
       >
         &larr; Previous
       </button>
       
-      <div className="flex items-center">
+      <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0">
         <input
           type="date"
           value={formattedDate}
           onChange={handleDateChange}
-          className="border rounded px-2 py-1 mx-2"
-          max={new Date().toISOString().split('T')[0]} // Limit to today
+          className="border rounded px-2 py-1 w-full sm:w-auto sm:mx-2"
+          max={new Date().toISOString().split('T')[0]}
         />
         <button
           onClick={goToToday}
-          className="ml-2 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+          className="w-full sm:w-auto ml-0 sm:ml-2 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
         >
           Today
         </button>
@@ -60,7 +60,7 @@ function DateSelector({ selectedDate, setSelectedDate }) {
       
       <button
         onClick={goToNextDay}
-        className="px-3 py-1 bg-white border rounded shadow-sm hover:bg-gray-50"
+        className="w-full sm:w-auto px-3 py-1 bg-white border rounded shadow-sm hover:bg-gray-50"
         disabled={isToday(selectedDate)}
       >
         Next &rarr;
