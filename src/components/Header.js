@@ -32,7 +32,14 @@ function Header() {
   return (
     <header className="bg-black text-white p-3">
       <div className="container mx-auto flex justify-between items-center">
-        <h1 className="text-xl font-bold tracking-normal app-logo">Bite</h1>
+        <div className="flex items-center">
+            <img 
+                src="/fork-icon.png" 
+                alt="" 
+                className="h-5 mr-2 invert brightness-0" 
+            />
+          <h1 className="text-xl font-bold tracking-normal app-logo">Bite</h1>
+        </div>
         
         {currentUser && (
           <div className="relative" ref={dropdownRef}>

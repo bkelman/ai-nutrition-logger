@@ -1,22 +1,26 @@
-// src/components/DateSelector.js
+// src/components/DateSelector.js - Update the date handling
 import React from 'react';
 
 function DateSelector({ selectedDate, setSelectedDate }) {
-  // Format date as YYYY-MM-DD for the input
-  const formattedDate = selectedDate.toISOString().split('T')[0];
+  // Format date as YYYY-MM-DD for the input, ensuring local timezone
+  const formattedDate = selectedDate.toLocaleDateString('en-CA'); // en-CA uses YYYY-MM-DD format
   
   const handleDateChange = (e) => {
-    // Fix for timezone issues
+    // Get the date string from the input
     const dateString = e.target.value;
-    const [year, month, day] = dateString.split('-').map(num => parseInt(num, 10));
     
-    // Create date using local timezone (months are 0-indexed in JavaScript Date)
-    const newDate = new Date(year, month - 1, day);
+    // Create a new date at midnight in the local timezone
+    const [year, month, day] = dateString.split('-').map(num => parseInt(num, 10));
+    const newDate = new Date(year, month - 1, day, 0, 0, 0);
+    
     setSelectedDate(newDate);
   };
   
   const goToToday = () => {
-    setSelectedDate(new Date());
+    // Create today's date at midnight in the local timezone
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    setSelectedDate(today);
   };
   
   const goToPreviousDay = () => {
@@ -28,19 +32,24 @@ function DateSelector({ selectedDate, setSelectedDate }) {
   const goToNextDay = () => {
     const nextDay = new Date(selectedDate);
     nextDay.setDate(nextDay.getDate() + 1);
+    
     // Don't allow selecting future dates
-    if (nextDay <= new Date()) {
+    const today = new Date();
+    today.setHours(23, 59, 59, 999); // End of today
+    
+    if (nextDay <= today) {
       setSelectedDate(nextDay);
     }
   };
 
-  // Format date for display
+  // Format date for display using local timezone
   const displayDate = selectedDate.toLocaleDateString('en-US', {
     weekday: 'short',
     month: 'short',
     day: 'numeric'
   });
   
+  // Check if date is today
   const isToday = (date) => {
     const today = new Date();
     return date.getDate() === today.getDate() &&
@@ -52,8 +61,12 @@ function DateSelector({ selectedDate, setSelectedDate }) {
   const canGoToNextDay = () => {
     const nextDay = new Date(selectedDate);
     nextDay.setDate(nextDay.getDate() + 1);
-    return nextDay <= new Date();
+    const today = new Date();
+    return nextDay <= today;
   };
+  
+  // Get today's date in YYYY-MM-DD format for max attribute
+  const maxDate = new Date().toLocaleDateString('en-CA');
   
   return (
     <div className="mb-6 pt-2">
@@ -87,7 +100,7 @@ function DateSelector({ selectedDate, setSelectedDate }) {
           value={formattedDate}
           onChange={handleDateChange}
           className="bg-transparent border-none text-center"
-          max={new Date().toISOString().split('T')[0]}
+          max={maxDate}
         />
         
         <button

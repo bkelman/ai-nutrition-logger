@@ -70,43 +70,75 @@ function AppContent() {
     return <AuthContainer />;
   }
 
-return (
-  <div className="App">
-    <Header />
-    <main className="container mx-auto px-4 sm:px-6 max-w-4xl">
-      <DateSelector 
-        selectedDate={selectedDate} 
-        setSelectedDate={setSelectedDate} 
-      />
-      
-      {isToday(selectedDate) ? (
-        <FoodInput setCurrentMeal={setCurrentMeal} addMeal={addMeal} />
-      ) : (
-        <div className="mb-8 p-4 bg-gray-100 rounded-lg text-center">
-          <p>Viewing meal history for {selectedDate.toDateString()}</p>
-          <button 
-            onClick={() => setSelectedDate(new Date())} 
-            className="mt-2 px-4 py-2 bg-blue-600 text-white rounded"
-          >
-            Go to Today to Log New Meals
-          </button>
-        </div>
-      )}
-      
-      {currentMeal && isToday(selectedDate) && <NutritionDisplay meal={currentMeal} />}
-      
-      {loading ? (
-        <p className="text-center py-4">Loading your meal history...</p>
-      ) : (
-        <DailySummary 
-          meals={meals} 
-         date={selectedDate} 
-          onMealDeleted={handleMealDeleted} 
+  return (
+    <div className="App">
+      <Header />
+      <main className="container mx-auto px-4 sm:px-6 max-w-4xl">
+        {/* 1. Date Selector */}
+        <DateSelector 
+          selectedDate={selectedDate} 
+          setSelectedDate={setSelectedDate} 
         />
-      )}
-    </main>
-  </div>
-);
+        
+        {/* 2. Daily Summary - Calories and Macros */}
+        {!loading && (
+          <DailySummary 
+            meals={meals} 
+            date={selectedDate} 
+            onMealDeleted={handleMealDeleted} 
+            showMealsList={false} // New prop to hide meals list
+          />
+        )}
+        
+        {/* 3. Food/Drink Input Box */}
+        {isToday(selectedDate) && (
+          <FoodInput setCurrentMeal={setCurrentMeal} addMeal={addMeal} />
+        )}
+        
+        {/* Display analysis of current meal entry if available */}
+        {currentMeal && isToday(selectedDate) && 
+          <NutritionDisplay meal={currentMeal} />
+        }
+        
+        {/* 4. Today's Meal Entries */}
+        {loading ? (
+          <p className="text-center py-4">Loading your meal history...</p>
+        ) : (
+          <div className="mt-6">
+            <h3 className="font-medium mb-2">Today's Entries</h3>
+            <div className="space-y-2">
+              {meals.length > 0 ? (
+                meals.map((meal) => (
+                  <div key={meal.id} className="p-3 bg-gray-50 rounded flex justify-between items-start">
+                    <div className="flex-1">
+                      <p className="font-medium">{meal.description}</p>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {new Date(meal.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} • 
+                        {meal.totals.calories} calories
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => handleMealDeleted(meal.id)}
+                      className="text-red-500 p-1 ml-2 rounded hover:bg-gray-200 flex-shrink-0"
+                      aria-label="Delete meal"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <div className="p-4 bg-gray-50 text-center rounded">
+                  <p>No entries yet today. Log your first meal or drink above.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </main>
+    </div>
+  );
 }
 
 function App() {

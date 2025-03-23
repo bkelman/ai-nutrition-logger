@@ -42,7 +42,7 @@ function NutritionDisplay({ meal }) {
               </tbody>
               <tfoot className="bg-gray-50 font-medium">
                 <tr>
-                  <td className="py-2 px-2 sm:px-4 text-xs sm:text-sm" colSpan="2">Totals</td>
+                  <td colSpan="2" className="py-2 px-2 sm:px-4 text-right text-xs sm:text-sm">Totals</td>
                   <td className="py-2 px-2 sm:px-4 text-right text-xs sm:text-sm">{meal.totals.calories}</td>
                   <td className="py-2 px-2 sm:px-4 text-right text-xs sm:text-sm">{meal.totals.protein}</td>
                   <td className="py-2 px-2 sm:px-4 text-right text-xs sm:text-sm">{meal.totals.carbs}</td>
