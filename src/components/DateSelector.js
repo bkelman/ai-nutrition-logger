@@ -1,3 +1,4 @@
+// src/components/DateSelector.js
 import React from 'react';
 
 function DateSelector({ selectedDate, setSelectedDate }) {
@@ -32,49 +33,76 @@ function DateSelector({ selectedDate, setSelectedDate }) {
       setSelectedDate(nextDay);
     }
   };
+
+  // Format date for display
+  const displayDate = selectedDate.toLocaleDateString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric'
+  });
   
-return (
-    <div className="flex flex-col sm:flex-row items-center justify-between mb-6 p-3 bg-gray-100 rounded-lg space-y-3 sm:space-y-0">
-      <button
-        onClick={goToPreviousDay}
-        className="w-full sm:w-auto px-3 py-1 bg-white border rounded shadow-sm hover:bg-gray-50"
-      >
-        &larr; Previous
-      </button>
+  const isToday = (date) => {
+    const today = new Date();
+    return date.getDate() === today.getDate() &&
+      date.getMonth() === today.getMonth() &&
+      date.getFullYear() === today.getFullYear();
+  };
+  
+  // Calculate if the next day would be in the future
+  const canGoToNextDay = () => {
+    const nextDay = new Date(selectedDate);
+    nextDay.setDate(nextDay.getDate() + 1);
+    return nextDay <= new Date();
+  };
+  
+  return (
+    <div className="mb-6 pt-2">
+      {/* Date display */}
+      <div className="text-center mb-2">
+        <h2 className="text-lg font-medium">{displayDate}</h2>
+        {!isToday(selectedDate) && (
+          <button 
+            onClick={goToToday}
+            className="text-sm text-blue-600 mt-1"
+          >
+            Return to Today
+          </button>
+        )}
+      </div>
       
-      <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0">
+      {/* Date navigation */}
+      <div className="flex items-center justify-between p-2 bg-gray-100 rounded-lg">
+        <button
+          onClick={goToPreviousDay}
+          className="p-2 rounded-full hover:bg-gray-200"
+          aria-label="Previous day"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+          </svg>
+        </button>
+        
         <input
           type="date"
           value={formattedDate}
           onChange={handleDateChange}
-          className="border rounded px-2 py-1 w-full sm:w-auto sm:mx-2"
+          className="bg-transparent border-none text-center"
           max={new Date().toISOString().split('T')[0]}
         />
+        
         <button
-          onClick={goToToday}
-          className="w-full sm:w-auto ml-0 sm:ml-2 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+          onClick={goToNextDay}
+          className={`p-2 rounded-full ${canGoToNextDay() ? 'hover:bg-gray-200' : 'opacity-50 cursor-not-allowed'}`}
+          disabled={isToday(selectedDate)}
+          aria-label="Next day"
         >
-          Today
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+          </svg>
         </button>
       </div>
-      
-      <button
-        onClick={goToNextDay}
-        className="w-full sm:w-auto px-3 py-1 bg-white border rounded shadow-sm hover:bg-gray-50"
-        disabled={isToday(selectedDate)}
-      >
-        Next &rarr;
-      </button>
     </div>
   );
-}
-
-// Helper function to check if a date is today
-function isToday(date) {
-  const today = new Date();
-  return date.getDate() === today.getDate() &&
-    date.getMonth() === today.getMonth() &&
-    date.getFullYear() === today.getFullYear();
 }
 
 export default DateSelector;

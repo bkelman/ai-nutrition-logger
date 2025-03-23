@@ -61,12 +61,15 @@ function AppContent() {
       date.getFullYear() === today.getFullYear();
   };
 
+  const handleMealDeleted = (mealId) => {
+    setMeals(meals.filter(meal => meal.id !== mealId));
+  };
+
   // If not authenticated, show auth container
   if (!currentUser) {
     return <AuthContainer />;
   }
 
-  // In your return statement in AppContent
 return (
   <div className="App">
     <Header />
@@ -95,7 +98,11 @@ return (
       {loading ? (
         <p className="text-center py-4">Loading your meal history...</p>
       ) : (
-        <DailySummary meals={meals} date={selectedDate} />
+        <DailySummary 
+          meals={meals} 
+         date={selectedDate} 
+          onMealDeleted={handleMealDeleted} 
+        />
       )}
     </main>
   </div>
