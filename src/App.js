@@ -7,7 +7,7 @@ import NutritionDisplay from './components/NutritionDisplay';
 import DailySummary from './components/DailySummary';
 import AuthContainer from './components/auth/AuthContainer';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { saveMeal, getUserMeals } from './services/mealService';
+import { saveMeal, getUserMeals, deleteMeal } from './services/mealService';
 
 function AppContent() {
   const { currentUser } = useAuth();
@@ -119,14 +119,23 @@ function AppContent() {
                       </p>
                     </div>
                     <button
-                      onClick={() => handleMealDeleted(meal.id)}
-                      className="text-red-500 p-1 ml-2 rounded hover:bg-gray-200 flex-shrink-0"
-                      aria-label="Delete meal"
+                      onClick={async () => {
+                        try {
+                         // First delete from Firestore
+                         await deleteMeal(meal.id);
+                          // Then update local state
+                           handleMealDeleted(meal.id);
+                        } catch (error) {
+                          console.error('Error deleting meal:', error);
+                       }
+                     }}
+                     className="text-red-500 p-1 ml-2 rounded hover:bg-gray-200 flex-shrink-0"
+                     aria-label="Delete meal"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </button>
+  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+  </svg>
+</button>
                   </div>
                 ))
               ) : (

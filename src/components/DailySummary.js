@@ -24,8 +24,17 @@ function DailySummary({ meals, date, onMealDeleted, showMealsList = true }) {
 
   const handleDeleteMeal = async (mealId) => {
     try {
+      // Log the meal ID we're trying to delete
+      console.log('Meal ID being deleted:', mealId);
+      console.log('Meal ID type:', typeof mealId, 'Value:', mealId);
+      
+      // Find the meal in the current meals array for logging
+      const mealToDelete = meals.find(m => m.id === mealId);
+      console.log('Meal being deleted:', mealToDelete);
+      
       setDeletingId(mealId);
       await deleteMeal(mealId);
+      
       if (onMealDeleted) {
         onMealDeleted(mealId);
       }
