@@ -1,5 +1,5 @@
-import { db } from '../firebase';
 import { collection, addDoc, query, where, getDocs, orderBy, Timestamp, doc, deleteDoc } from 'firebase/firestore';
+import { db } from '../firebase';
 
 // Save a new meal to Firestore
 export const saveMeal = async (mealData, userId) => {
@@ -58,10 +58,12 @@ export const getUserMeals = async (userId, date = new Date()) => {
   };
 
   // Deleting a meal from Firestore
-export const deleteMeal = async (mealId) => {
+  export const deleteMeal = async (mealId) => {
     try {
+      console.log('Deleting meal with ID:', mealId); // Add for debugging
       const mealRef = doc(db, 'meals', mealId);
       await deleteDoc(mealRef);
+      console.log('Meal deleted successfully'); // Add for debugging
       return true;
     } catch (error) {
       console.error('Error deleting meal:', error);

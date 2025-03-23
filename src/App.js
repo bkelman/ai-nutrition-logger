@@ -62,7 +62,8 @@ function AppContent() {
   };
 
   const handleMealDeleted = (mealId) => {
-    setMeals(meals.filter(meal => meal.id !== mealId));
+    console.log('Handling meal deletion for ID:', mealId); // Add for debugging
+    setMeals(prevMeals => prevMeals.filter(meal => meal.id !== mealId));
   };
 
   // If not authenticated, show auth container
