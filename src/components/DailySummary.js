@@ -1,8 +1,7 @@
-// src/components/DailySummary.js
 import React, { useMemo, useState } from 'react';
 import { deleteMeal } from '../services/mealService';
 
-function DailySummary({ meals, date, onMealDeleted, showMealsList = true }) {
+function DailySummary({ meals, date, onMealDeleted, showMealsList = true, calorieTarget }) {
   const [deletingId, setDeletingId] = useState(null);
   
   // Calculate daily totals
@@ -21,6 +20,9 @@ function DailySummary({ meals, date, onMealDeleted, showMealsList = true }) {
       { calories: 0, protein: 0, carbs: 0, fat: 0 }
     );
   }, [meals]);
+
+  // Calculate remaining calories
+  const remainingCalories = calorieTarget - Math.round(dailyTotals.calories);
 
   const handleDeleteMeal = async (mealId) => {
     try {
@@ -47,13 +49,20 @@ function DailySummary({ meals, date, onMealDeleted, showMealsList = true }) {
 
   return (
     <div className="mb-4 p-3 bg-white border rounded-lg shadow">
-      {/* Compact stats row */}
-      <div className="flex justify-between items-center text-sm">
-        <div className="flex items-center">
+      {/* Compact stats row with remaining calories */}
+      <div className="flex flex-col sm:flex-row justify-between items-center text-sm">
+        <div className="flex items-center mb-2 sm:mb-0">
           <span className="font-medium">Today:</span>
           <span className="ml-2 px-2 py-1 bg-blue-100 rounded text-blue-800">
             {Math.round(dailyTotals.calories)} cal
           </span>
+          {calorieTarget > 0 && (
+            <span className={`ml-2 px-2 py-1 rounded ${
+              remainingCalories >= 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+            }`}>
+              {remainingCalories >= 0 ? `${remainingCalories} remaining` : `${Math.abs(remainingCalories)} over`}
+            </span>
+          )}
         </div>
         
         <div className="flex space-x-2">

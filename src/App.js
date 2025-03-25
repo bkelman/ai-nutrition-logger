@@ -8,6 +8,8 @@ import DailySummary from './components/DailySummary';
 import AuthContainer from './components/auth/AuthContainer';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { saveMeal, getUserMeals, deleteMeal } from './services/mealService';
+import { getUserSettings, updateCalorieTarget } from './services/userSettingsService';
+import CalorieTargetSetting from './components/CalorieTargetSetting';
 
 function AppContent() {
   const { currentUser } = useAuth();
@@ -15,6 +17,27 @@ function AppContent() {
   const [currentMeal, setCurrentMeal] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [calorieTarget, setCalorieTarget] = useState(2000); // Default value
+  const [loadingSettings, setLoadingSettings] = useState(true);
+
+  // Load user settings
+  useEffect(() => {
+    if (!currentUser) return;
+    
+    const loadSettings = async () => {
+      try {
+        setLoadingSettings(true);
+        const settings = await getUserSettings(currentUser.uid);
+        setCalorieTarget(settings.calorieTarget || 2000);
+      } catch (error) {
+        console.error('Error loading user settings:', error);
+      } finally {
+        setLoadingSettings(false);
+      }
+    };
+    
+    loadSettings();
+  }, [currentUser]);
 
   // Load user's meals for the selected date
   useEffect(() => {
@@ -62,8 +85,13 @@ function AppContent() {
   };
 
   const handleMealDeleted = (mealId) => {
-    console.log('Handling meal deletion for ID:', mealId); // Add for debugging
+    console.log('Handling meal deletion for ID:', mealId);
     setMeals(prevMeals => prevMeals.filter(meal => meal.id !== mealId));
+  };
+
+  // Handler for calorie target updates
+  const handleCalorieTargetUpdate = (newTarget) => {
+    setCalorieTarget(newTarget);
   };
 
   // If not authenticated, show auth container
@@ -81,13 +109,23 @@ function AppContent() {
           setSelectedDate={setSelectedDate} 
         />
         
+        {/* Calorie Target Setting */}
+        {!loadingSettings && (
+          <CalorieTargetSetting 
+            currentTarget={calorieTarget}
+            userId={currentUser.uid}
+            onUpdate={handleCalorieTargetUpdate}
+          />
+        )}
+        
         {/* 2. Daily Summary - Calories and Macros */}
         {!loading && (
           <DailySummary 
             meals={meals} 
             date={selectedDate} 
             onMealDeleted={handleMealDeleted} 
-            showMealsList={false} // New prop to hide meals list
+            showMealsList={false}
+            calorieTarget={calorieTarget}
           />
         )}
         
@@ -121,21 +159,21 @@ function AppContent() {
                     <button
                       onClick={async () => {
                         try {
-                         // First delete from Firestore
-                         await deleteMeal(meal.id);
+                          // First delete from Firestore
+                          await deleteMeal(meal.id);
                           // Then update local state
-                           handleMealDeleted(meal.id);
+                          handleMealDeleted(meal.id);
                         } catch (error) {
                           console.error('Error deleting meal:', error);
-                       }
-                     }}
-                     className="text-red-500 p-1 ml-2 rounded hover:bg-gray-200 flex-shrink-0"
-                     aria-label="Delete meal"
+                        }
+                      }}
+                      className="text-red-500 p-1 ml-2 rounded hover:bg-gray-200 flex-shrink-0"
+                      aria-label="Delete meal"
                     >
-  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-  </svg>
-</button>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
                   </div>
                 ))
               ) : (
